@@ -1,0 +1,168 @@
+/* src/Navbar.css */
+
+/* src/Navbar.css */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  width: 100%;
+  box-sizing: border-box;
+  
+  /* UPDATED: Darker Background for Contrast */
+  background: rgba(15, 23, 42, 0.85); /* Dark Blue-Black with 85% opacity */
+  backdrop-filter: blur(12px);         /* Strong blur to smooth out the image behind it */
+  -webkit-backdrop-filter: blur(12px);
+  
+  /* Add a subtle bottom border to define the edge */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* Drop shadow to lift it off the image */
+  
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* ... rest of the file stays the same ... */
+
+/* --- Brand Section (Fixed Width to prevent overlap) --- */
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 280px; /* <--- Forces minimum space for the logo area */
+  margin-right: 40px; /* <--- Adds a buffer zone before the links start */
+}
+
+/* ... Keep logo-placeholder, title-stack, etc. as they were ... */
+.logo-placeholder {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #00c6ff, #9d50bb);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+  flex-shrink: 0; 
+}
+
+.title-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  color: white;
+  text-transform: uppercase;
+  white-space: nowrap; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.sub-title {
+  font-size: 0.75rem;
+  color: #a0a0a0;
+  letter-spacing: 2px;
+  font-weight: 300;
+}
+
+/* --- Navigation Links (Centered) --- */
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 30px; /* Space between "Overview", "AQI Map", etc. */
+  margin: 0;
+  padding: 0;
+  flex-grow: 1; /* Allows this section to take up available space */
+  justify-content: center; /* Centers the links in the middle */
+}
+
+/* ... Keep nav-item, hover effects, search bar same as before ... */
+.nav-item {
+  position: relative;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.3s ease;
+  padding-bottom: 5px;
+  white-space: nowrap; /* Prevents links from breaking lines */
+}
+
+.nav-item:hover {
+  color: #00d2ff;
+  text-shadow: 0 0 8px rgba(0, 210, 255, 0.6);
+}
+
+.nav-item.active {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.underline {
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #00d2ff;
+  border-radius: 2px;
+  box-shadow: 0 0 10px #00d2ff;
+}
+
+/* src/Navbar.css */
+
+/* ... existing code ... */
+
+/* --- ULTRA COMPACT SEARCH BAR --- */
+.search-container {
+  position: relative;
+  margin-left: 15px;
+}
+
+.search-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  
+  /* Even slimmer padding */
+  padding: 5px 10px 5px 30px; 
+  
+  color: white;
+  outline: none;
+  transition: all 0.3s ease;
+  
+  /* Much smaller default width */
+  width: 110px; 
+  font-size: 0.8rem; /* Smaller text */
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+}
+
+.search-input:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #00d2ff;
+  
+  /* Expands just enough to type comfortable */
+  width: 160px; 
+  
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem; /* Tiny icon */
+  pointer-events: none;
+  opacity: 0.7;
+}

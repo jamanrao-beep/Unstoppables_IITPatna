@@ -5,68 +5,63 @@ body {
   padding: 0;
   font-family: 'Inter', sans-serif;
   height: 100vh;
-  overflow: hidden;
   
-  /* Bright Sky Gradient */
-  background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+  /* CHANGED: Allow vertical scrolling */
+  overflow-y: auto; 
+  overflow-x: hidden; /* Keep horizontal scroll locked */
+
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   background-size: 200% 200%;
-  animation: skyMove 10s ease infinite;
-  
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  animation: cosmicFlow 15s ease infinite;
+
+  /* Remove flex centering so the dashboard can grow */
+  display: block; 
+  color: white;
 }
 
-@keyframes skyMove {
+@keyframes cosmicFlow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* The Glass Card Container */
+/* Dark Glass Container */
 .welcome-container {
-  background: rgba(255, 255, 255, 0.25); /* Semi-transparent white */
-  backdrop-filter: blur(12px); /* Blur effect behind the card */
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05); /* Very transparent white */
+  backdrop-filter: blur(16px); /* Strong blur for frosted look */
+  -webkit-backdrop-filter: blur(16px);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 4rem 6rem;
   text-align: center;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); /* Soft shadow */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* Darker Text for Contrast on Light Background */
 .title {
-  font-size: 4.5rem;
+  font-size: 5rem;
   font-weight: 800;
   margin: 0;
-  /* Deep Blue Gradient Text */
-  background: linear-gradient(to right, #2c3e50, #4ca1af); 
+  /* Cyan to Purple Text Gradient */
+  background: linear-gradient(to right, #00c6ff, #9d50bb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.3));
 }
 
 .subtitle {
   font-size: 1.5rem;
-  color: #2c3e50; /* Dark Blue-Grey */
+  color: #d1d1d1; /* Light grey for readability */
   margin-top: 1rem;
-  font-weight: 500;
+  font-weight: 300;
+  letter-spacing: 1px;
 }
 
+/* Button Reset (The animation handles the rest) */
 .start-btn {
-  margin-top: 2.5rem;
-  padding: 16px 45px;
-  font-size: 1.2rem;
-  background: #ffffff;
-  border: none;
-  border-radius: 50px;
-  color: #2c3e50;
-  font-weight: bold;
+  margin-top: 3rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  outline: none;
 }
-
 .welcome-container {
   height: 100vh;
   display: flex;

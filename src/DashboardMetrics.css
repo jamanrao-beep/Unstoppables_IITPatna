@@ -1,0 +1,267 @@
+/* src/DashboardMetrics.css */
+
+/* The main container holding this entire 100vh section */
+/* src/DashboardMetrics.css */
+
+.metrics-section {
+    height: 100vh; 
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Changed from center to flex-start to respect top padding */
+    color: white;
+    
+    /* UPDATED: Increased top padding to push everything down */
+    padding-top: 100px; 
+    
+    box-sizing: border-box;
+}
+
+/* ... rest of the file stays the same ... */
+/* --- Title --- */
+.metrics-title {
+    font-size: 1.8rem; /* Medium size */
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+
+/* --- Main Row Layout (Left Box | Circle | Right Box) --- */
+.main-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px; /* Space between boxes and the circle */
+    width: 90%;
+    max-width: 1000px;
+    margin-bottom: 4rem; /* Space below the circle section */
+}
+
+
+/* --- Reusable Glass Box Style --- */
+.glass-box {
+    background: rgba(255, 255, 255, 0.08); /* Very transparent white */
+    backdrop-filter: blur(15px); /* The blurry effect */
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.glass-box:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Side Boxes (Temp & Humidity) */
+.side-box {
+    width: 180px;
+    height: 180px;
+    padding: 20px;
+}
+
+.box-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
+}
+
+.box-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 5px 0;
+}
+
+.box-label {
+    font-size: 1rem;
+    font-weight: 400;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
+/* --- The Big Green AQI Circle --- */
+.aqi-circle {
+    width: 280px; /* Big enough */
+    height: 280px;
+    border-radius: 50%;
+    /* Vibrant Green Gradient */
+    background: linear-gradient(145deg, #2af598, #009efd);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 50px rgba(42, 245, 152, 0.6), inset 0 0 20px rgba(255,255,255,0.3);
+    position: relative;
+    z-index: 2; /* Ensures it sits on top */
+    border: 4px solid rgba(255,255,255,0.2);
+}
+
+.aqi-value {
+    font-size: 5rem;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 2px 15px rgba(0,0,0,0.3);
+}
+
+.aqi-label {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.aqi-status {
+    font-size: 1rem;
+    background: rgba(0,0,0,0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin-top: 15px;
+}
+
+
+/* --- Bottom Row (PM 2.5 & PM 10) --- */
+.bottom-row {
+    display: flex;
+    gap: 30px;
+}
+
+.small-box {
+    width: 140px;
+    height: 120px;
+    padding: 15px;
+}
+
+.small-box .box-label {
+    font-weight: 700;
+    color: #00d2ff; /* Highlight color for PM labels */
+}
+
+.small-box .box-value {
+    font-size: 1.6rem;
+}
+/* Using pseudo-element for the unit to style it differently */
+.small-box .box-value::after {
+    content: ' µg/m³'; /* Standard unit for PM */
+    font-size: 0.9rem;
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+/* src/DashboardMetrics.css */
+
+/* ... existing code ... */
+
+/* --- NEW: Suggestion & Health Section --- */
+.suggestion-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch; /* Makes both boxes same height */
+    gap: 30px;
+    width: 90%;
+    max-width: 1100px;
+    margin-top: 60px; /* Space below the AQI circle */
+    margin-bottom: 100px; /* Space at the bottom */
+}
+
+/* 1. Tourist Suggestion Box (Bigger, Left) */
+.tourist-box {
+    flex: 2; /* Takes up 2/3 of the space */
+    background: rgba(20, 30, 48, 0.6); /* Darker glass for readability */
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: left; /* Align text to left for reading */
+    color: #e0e0e0;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.tourist-title {
+    font-size: 1.4rem;
+    color: #00d2ff;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tourist-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    font-style: italic;
+    color: white;
+}
+
+/* Icon Row inside Tourist Box */
+.icon-row {
+    display: flex;
+    gap: 20px;
+    margin-top: auto; /* Pushes icons to bottom */
+}
+
+.icon-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 15px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* 2. Health Advisory Box (Smaller, Right) */
+.health-box {
+    flex: 1; /* Takes up 1/3 of the space */
+    background: rgba(28, 168, 88, 0.25); /* Green tint for "Good Health" */
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.health-title {
+    font-size: 1.2rem;
+    color: #2ecc71; /* Bright Green Text */
+    margin-bottom: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.health-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #e8f5e9;
+}
+
+.health-badge {
+    margin-top: 15px;
+    display: inline-block;
+    background: #2ecc71;
+    color: black;
+    font-weight: bold;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    align-self: flex-start;
+}
