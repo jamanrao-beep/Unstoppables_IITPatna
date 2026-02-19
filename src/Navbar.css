@@ -162,3 +162,133 @@
   pointer-events: none;
   opacity: 0.7;
 }
+
+/* src/Navbar.css */
+
+.navbar {
+    position: fixed;
+    top: 0; left: 0; width: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+/* Brand Section */
+.nav-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the sub-text neatly under the main title */
+}
+
+.brand-main {
+    font-size: 1.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffffff, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.brand-sub {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+}
+
+.blue-dot {
+    width: 5px;
+    height: 5px;
+    background-color: #00d2ff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00d2ff;
+}
+
+/* Tabs Section */
+.nav-tabs {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-tab {
+    background: transparent;
+    color: #cbd5e1;
+    border: 1px solid transparent;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-tab:hover {
+    color: #00d2ff;
+    background: rgba(0, 210, 255, 0.05);
+}
+
+.nav-tab.active {
+    color: #00d2ff;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    background: rgba(0, 210, 255, 0.1);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+}
+
+/* src/Navbar.css Additions */
+
+.title-stack {
+    display: flex;
+    flex-direction: column;
+    /* This forces the subtitle to center perfectly under the main title */
+    align-items: center; 
+    justify-content: center;
+}
+
+/* src/Navbar.css */
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    margin-right: 30px; /* Pushes the brand away from the tabs */
+}
+
+.main-title {
+    font-size: 1.1rem; 
+    font-weight: 900;
+    letter-spacing: 1px; /* Reduced to save space */
+    background: linear-gradient(135deg, #ffffff, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sub-title {
+    display: flex;
+    align-items: center;
+    gap: 6px; 
+    font-size: 0.65rem; /* Shrunk slightly to fit perfectly under the title */
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+}
+
+.blue-dot {
+    width: 5px;
+    height: 5px;
+    background-color: #00d2ff;
+    border-radius: 50%;
+    /* Gives the dot a slight neon glow */
+    box-shadow: 0 0 6px #00d2ff; 
+}

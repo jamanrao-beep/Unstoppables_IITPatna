@@ -3,7 +3,6 @@ import React from 'react';
 import './Navbar.css';
 import { motion } from 'framer-motion';
 
-// Now accepts props from Dashboard to control the state
 const Navbar = ({ activeTab, setActiveTab }) => {
 
     const navLinks = [
@@ -21,7 +20,12 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 <div className="logo-placeholder"></div>
                 <div className="title-stack">
                     <span className="main-title">PRO ATMOS GUARD</span>
-                    <span className="sub-title">IIT PATNA</span>
+                    {/* Updated Subtitle with the Blue Dot */}
+                    <div className="sub-title">
+                        <span>IIT PATNA</span>
+                        <span className="blue-dot"></span>
+                        <span>TECHNEX '26</span>
+                    </div>
                 </div>
             </div>
 
@@ -31,7 +35,6 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                     <li
                         key={link}
                         className={`nav-item ${activeTab === link ? 'active' : ''}`}
-                        // When clicked, tell Dashboard to switch the tab
                         onClick={() => setActiveTab(link)}
                     >
                         {link}

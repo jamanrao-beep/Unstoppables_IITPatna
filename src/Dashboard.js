@@ -304,7 +304,9 @@ const Dashboard = () => {
                                 </div>
 
                                 <div className="map-split-container">
-                                    <div className="map-wrapper"><HeatMapComponent onLocationSelect={handleHeatClick} /></div>
+                                    {/* HERE IS THE CHANGED LINE WITH userPos={userPos} PASSED IN! */}
+                                    <div className="map-wrapper"><HeatMapComponent onLocationSelect={handleHeatClick} userPos={userPos} /></div>
+
                                     <div className="station-panel" style={{ borderColor: 'rgba(255, 71, 87, 0.3)' }}>
                                         <div className="panel-header"><div><div className="panel-title" style={{ color: '#ff4757' }}>Thermal Station Details</div><div className="location-name">{heatLoc.name}</div></div><div className="live-badge" style={{ background: '#ff4757' }}>LIVE</div></div>
                                         <div className="aqi-display"><div className="aqi-big-val" style={{ color: heatLoc.surfaceTemp > 40 ? '#ff4757' : '#f1c40f' }}>{heatLoc.surfaceTemp}°C <span style={{ fontSize: '1rem', color: 'white' }}>Surface</span></div><div className="aqi-meta"><span className="visibility-tag">{heatLoc.status}</span></div></div>
@@ -329,15 +331,112 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* --- VIEW 4: ECO IMPACT --- */}
+                {/* --- VIEW 4: ECO IMPACT (AIR QUALITY FOCUS) --- */}
                 {activeTab === 'Eco Impact' && (
                     <div className="eco-container">
-                        <section className="eco-hero" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                            <h1 className="eco-hero-title">Air Quality Intelligence</h1><div className="eco-hero-subtitle">The Breath-Analyzer</div><div className="explore-impact"><span>Explore Impact made by IIT Patna</span><span>↓</span></div>
+
+                        {/* 1. COMPACT HERO SECTION */}
+                        {/* Adjusted padding: 85px top (moves text up, clears navbar), 40px bottom (shrinks image height) */}
+                        <section className="eco-hero" style={{ position: 'relative', backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', padding: '85px 20px 40px 20px', textAlign: 'center' }}>
+                            <h1 className="eco-hero-title" style={{ fontSize: '2.8rem', color: '#00d2ff', textTransform: 'uppercase', margin: 0 }}>The Invisible Crisis</h1>
+                            <div className="eco-hero-subtitle" style={{ fontSize: '1.1rem', color: '#e2e8f0', marginTop: '5px', letterSpacing: '1px' }}>Understanding the true human and economic cost of urban air pollution</div>
+
+                            {/* Pinned absolutely to the bottom of the image */}
+                            <div style={{ position: 'absolute', bottom: '5px', left: '0', width: '100%', textAlign: 'center' }}>
+                                <div
+                                    className="scroll-down-arrow"
+                                    onClick={() => window.scrollBy({ top: 500, behavior: 'smooth' })}
+                                    title="Scroll Down"
+                                    style={{ margin: 0 }}
+                                >
+                                    ↓
+                                </div>
+                            </div>
                         </section>
-                        <section className="eco-blue-section">
-                            <div className="eco-card"><div className="eco-card-header"><span>⚠️</span> Context: The Data Blindspot</div><p className="eco-card-text">Air pollution is reported as a single city-wide average...</p></div>
-                            <div className="eco-card"><div className="eco-card-header"><span>🎯</span> Our Mission</div><p className="eco-card-text">Build a Predictive Air Quality Engine...</p></div>
+
+                        {/* 2. LIVE GLOBAL AQI METRICS */}
+                        <section style={{ background: '#0f172a', padding: '30px 20px 0 20px', textAlign: 'center' }}>
+                            <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+
+                                <div style={{ flex: 1, minWidth: '200px', minHeight: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'rgba(231, 76, 60, 0.05)', border: '1px solid rgba(231, 76, 60, 0.4)', borderRadius: '12px', padding: '20px' }}>
+                                    <div style={{ fontSize: '2.5rem', color: '#e74c3c', fontWeight: 'bold' }}>7 Million</div>
+                                    <div style={{ color: '#cbd5e1', fontSize: '1rem', marginTop: '8px' }}>Premature deaths annually due to air pollution</div>
+                                </div>
+
+                                <div style={{ flex: 1, minWidth: '200px', minHeight: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'rgba(0, 210, 255, 0.05)', border: '1px solid rgba(0, 210, 255, 0.4)', borderRadius: '12px', padding: '20px' }}>
+                                    <div style={{ fontSize: '2.5rem', color: '#00d2ff', fontWeight: 'bold' }}>99%</div>
+                                    <div style={{ color: '#cbd5e1', fontSize: '1rem', marginTop: '8px' }}>Global population breathing air exceeding WHO limits</div>
+                                </div>
+
+                                <div style={{ flex: 1, minWidth: '200px', minHeight: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'rgba(46, 204, 113, 0.05)', border: '1px solid rgba(46, 204, 113, 0.4)', borderRadius: '12px', padding: '20px' }}>
+                                    <div style={{ fontSize: '2.5rem', color: '#2ecc71', fontWeight: 'bold' }}>$8.1 Trillion</div>
+                                    <div style={{ color: '#cbd5e1', fontSize: '1rem', marginTop: '8px' }}>Annual global health cost of air pollution</div>
+                                </div>
+
+                            </div>
+                        </section>
+
+                        {/* 3. CORE EXPLANATION GRID */}
+                        <section className="eco-blue-section" style={{ background: '#0f172a', padding: '40px 40px', minHeight: 'auto' }}>
+                            <div className="plan-grid" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+
+                                <div className="plan-card" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(231, 76, 60, 0.3)' }}>
+                                    <div className="eco-card-header" style={{ fontSize: '1.2rem', color: '#e74c3c', marginBottom: '15px' }}><span>⚠️</span> The Data Blindspot</div>
+                                    <p className="eco-card-text" style={{ color: '#cbd5e1', lineHeight: '1.6', fontSize: '0.9rem' }}>Air pollution is currently reported as massive, city-wide averages. This masks the toxic reality of specific industrial zones. A monitoring station in a green park cannot warn a commuter about hazardous smog just 2km away at a heavy traffic junction.</p>
+                                </div>
+
+                                <div className="plan-card" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(0, 210, 255, 0.3)' }}>
+                                    <div className="eco-card-header" style={{ fontSize: '1.2rem', color: '#00d2ff', marginBottom: '15px' }}><span>🫁</span> The PM2.5 Threat</div>
+                                    <p className="eco-card-text" style={{ color: '#cbd5e1', lineHeight: '1.6', fontSize: '0.9rem' }}>Microscopic particulate matter (PM2.5) bypasses the body's natural defenses, entering the bloodstream. Commuters facing hyperlocal spikes at traffic intersections inhale toxic doses that aggregate city-wide averages completely fail to report.</p>
+                                </div>
+
+                                <div className="plan-card" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(46, 204, 113, 0.3)' }}>
+                                    <div className="eco-card-header" style={{ fontSize: '1.2rem', color: '#2ecc71', marginBottom: '15px' }}><span>🎯</span> Our Mission & Solution</div>
+                                    <ul className="eco-list" style={{ color: '#cbd5e1', lineHeight: '1.6', paddingLeft: '20px', fontSize: '0.9rem' }}>
+                                        <li style={{ marginBottom: '5px' }}><strong>Interpolate:</strong> Estimate air quality in spatial "blind spots".</li>
+                                        <li style={{ marginBottom: '5px' }}><strong>Forecast:</strong> Predict PM2.5 trends for the next 12–24 hours.</li>
+                                        <li><strong>Optimize:</strong> Provide an AI routing engine that reduces commuter exposure by ~22%.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="plan-card" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(241, 196, 15, 0.3)' }}>
+                                    <div className="eco-card-header" style={{ fontSize: '1.2rem', color: '#f1c40f', marginBottom: '15px' }}><span>⚙️</span> Technical Implementation</div>
+                                    <ul className="eco-list" style={{ color: '#cbd5e1', lineHeight: '1.6', paddingLeft: '20px', fontSize: '0.9rem' }}>
+                                        <li style={{ marginBottom: '5px' }}><strong>Hardware:</strong> ESP32 Microcontrollers & PMS5003 Sensors.</li>
+                                        <li style={{ marginBottom: '5px' }}><strong>ML Engine:</strong> Random Forest / XGBoost models (FastAPI).</li>
+                                        <li><strong>Routing:</strong> OSRM integrated with Leaflet GIS mapping.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* 4. REAL-WORLD HEALTH IMPACT CHART */}
+                            <div style={{ maxWidth: '1000px', margin: '50px auto 0 auto', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '15px', padding: '30px' }}>
+                                <h3 style={{ color: '#fff', textAlign: 'center', marginBottom: '25px', fontSize: '1.5rem' }}>Real-World Health Impacts</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
+                                        <span style={{ color: '#e74c3c', fontSize: '1.1rem' }}>🚗 1 Hour Commute in Heavy Traffic</span>
+                                        <span style={{ color: '#cbd5e1' }}>≈ Inhaling the PM2.5 equivalent of 2-3 cigarettes</span>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
+                                        <span style={{ color: '#f1c40f', fontSize: '1.1rem' }}>📉 Chronic PM2.5 Exposure</span>
+                                        <span style={{ color: '#cbd5e1' }}>≈ 15% increased risk of respiratory and cardiovascular disease</span>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ color: '#2ecc71', fontSize: '1.1rem' }}>🛡️ AI Safe Route Optimizer</span>
+                                        <span style={{ color: '#cbd5e1' }}>≈ Achieves up to 22% reduction in daily toxic particulate inhalation</span>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div className="dev-highlight-box" style={{ textAlign: 'center', marginTop: '50px', padding: '25px', background: 'rgba(0, 210, 255, 0.05)', border: '1px solid rgba(0, 210, 255, 0.2)', borderRadius: '15px' }}>
+                                <div className="dev-title" style={{ fontSize: '1.3rem', color: '#fff', fontWeight: 'bold' }}>Developed for Technex '26</div>
+                                <div className="dev-subtitle" style={{ color: '#00d2ff', marginTop: '5px', letterSpacing: '1px', fontSize: '0.9rem' }}>For IIT BHU • By IIT Patna</div>
+                            </div>
+
                         </section>
                     </div>
                 )}

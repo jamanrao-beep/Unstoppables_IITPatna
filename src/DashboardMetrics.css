@@ -1290,3 +1290,24 @@
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
 }
+
+/* --- BOUNCING SCROLL ARROW --- */
+@keyframes bounce-down {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-15px); }
+    60% { transform: translateY(-7px); }
+}
+
+.scroll-down-arrow {
+    font-size: 2.5rem;
+    color: #00d2ff;
+    display: inline-block;
+    animation: bounce-down 2s infinite;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: color 0.3s;
+}
+
+.scroll-down-arrow:hover {
+    color: #ffffff;
+}

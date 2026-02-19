@@ -1,0 +1,220 @@
+/* src/Welcome.css */
+
+.welcome-container {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center; 
+    align-items: center;     
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: white;
+    overflow: hidden;
+    z-index: 9999;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Floating Data Nodes in the background */
+.floating-node {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(0, 210, 255, 0.15);
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+    animation: float-node 6s ease-in-out infinite alternate;
+    backdrop-filter: blur(5px);
+    z-index: 0;
+}
+
+.node-1 { width: 120px; height: 120px; top: 15%; left: 10%; animation-delay: 0s; }
+.node-2 { width: 180px; height: 180px; bottom: 25%; right: 10%; animation-delay: 1.5s; background: rgba(46, 204, 113, 0.1); box-shadow: 0 0 30px rgba(46, 204, 113, 0.2);}
+.node-3 { width: 80px; height: 80px; top: 25%; right: 20%; animation-delay: 3s; background: rgba(231, 76, 60, 0.15); box-shadow: 0 0 30px rgba(231, 76, 60, 0.3);}
+
+@keyframes float-node {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-40px) scale(1.1); }
+}
+
+/* Main Content Box */
+.welcome-content {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03); 
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Adjusted padding to give space at the bottom for the pills */
+    padding: 60px 40px 40px 40px; 
+    border-radius: 30px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    max-width: 800px;
+    width: 90%;
+    margin: 0 auto; 
+    box-sizing: border-box;
+}
+
+.welcome-title {
+    font-size: 4.5rem; 
+    font-weight: 900;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #ffffff, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 10px 30px rgba(0, 210, 255, 0.2);
+    text-align: center;
+}
+
+.welcome-subtitle {
+    font-size: 1.5rem;
+    color: #cbd5e1;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Dynamic Typing Text */
+.dynamic-text-container {
+    height: 30px;
+    margin-bottom: 40px;
+    font-size: 1.2rem;
+    color: #2ecc71;
+    font-family: monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.start-btn {
+    background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+    color: white;
+    border: none;
+    padding: 18px 50px;
+    border-radius: 50px;
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+}
+
+.start-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 210, 255, 0.8);
+    color: #010779; 
+}
+
+/* Bottom Feature Cards - Now INSIDE the glass box! */
+.feature-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px; /* Spacing between the pills */
+    margin-top: 50px; /* Spacing between the start button and the pills */
+    width: 100%;
+}
+
+.feature-pill {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 12px 20px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #e2e8f0;
+    font-weight: 600;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.feature-pill:hover {
+    transform: translateY(-5px);
+    border-color: #00d2ff;
+    background: rgba(255,255,255,0.1);
+}
+
+/* --- NEW: HIGH-TECH HUD EFFECTS --- */
+
+/* 1. Subtle glowing grid in the background */
+.tech-grid {
+    position: absolute;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background-image:
+        linear-gradient(rgba(0, 210, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 210, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 1;
+    /* Fades the grid out at the edges of the screen */
+    mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+}
+
+/* 2. Make sure the welcome-content can hold the absolute positioned corners */
+.welcome-content {
+    position: relative; /* Crucial for the corners and scan line */
+    overflow: hidden;   /* Keeps the scan line inside the box */
+}
+
+/* 3. HUD Targeting Corners */
+.hud-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-color: #00d2ff;
+    border-style: solid;
+    opacity: 0.6;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.welcome-content:hover .hud-corner {
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+}
+
+.top-left { top: 20px; left: 20px; border-width: 3px 0 0 3px; border-top-left-radius: 8px;}
+.top-right { top: 20px; right: 20px; border-width: 3px 3px 0 0; border-top-right-radius: 8px;}
+.bottom-left { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; border-bottom-left-radius: 8px;}
+.bottom-right { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; border-bottom-right-radius: 8px;}
+
+/* 4. Holographic Radar Scan Line */
+.scan-line {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, rgba(0, 210, 255, 0.8), transparent);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+    animation: radar-scan 4s linear infinite;
+    opacity: 0.5;
+    z-index: 1;
+    pointer-events: none; /* So it doesn't block clicks! */
+}
+
+@keyframes radar-scan {
+    0% { top: -10%; opacity: 0; }
+    10% { opacity: 0.5; }
+    50% { top: 50%; opacity: 0.8; }
+    90% { opacity: 0.5; }
+    100% { top: 110%; opacity: 0; }
+}
