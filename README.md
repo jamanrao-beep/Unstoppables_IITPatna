@@ -37,4 +37,22 @@ Current environmental monitoring relies on massive, city-wide averages that mask
 3.  **Machine Learning Pipeline:** Data is fed into our predictive engine, processing localized weather lag, traffic density, and historical AQI.
 4.  **Client Application:** React frontend renders the interpolated data over interactive, multi-layered maps.
 
+## 👨‍💻 Meet the IIT Patna Team
+
+- **Joginapally Aman Rao** ✦ _Team Leader, Full-Stack & ML Engineer_
+- **Perumalla Neha** — _Machine Learning Engineer_
+- **Mahalakshmi Pattamsetti** — _Hardware Simulations & Backend Dev_
+- **Krishna Teja Degala** — _IoT & Hardware Specialist_
+
+---
+
+## 🌟 Our Vision
+
+We cannot fix what we cannot see. By bridging the gap between invisible environmental data and actionable public safety, **Pro Atmos Guard** doesn't just monitor the future of our cities—it actively protects the people living in them. We are engineering a smarter, safer, and more breathable tomorrow.
+
+---
+
+<p align="center">
+  Engineered with ✦ by IIT Patna <br/>
+</p>
 
