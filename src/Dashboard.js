@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import backgroundImage from './bckgrnd.jpg';
 import './DashboardMetrics.css';
 import AboutUs from './AboutUs';
+import Footer from './Footer';
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('Overview');
@@ -483,6 +484,10 @@ const Dashboard = () => {
                 )}
 
             </div>
+
+            {/* --- NEW FOOTER ADDED HERE --- */}
+            <Footer />
+
         </motion.div>
     );
 };
