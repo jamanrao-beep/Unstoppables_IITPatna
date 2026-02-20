@@ -53,6 +53,6 @@ We cannot fix what we cannot see. By bridging the gap between invisible environm
 ---
 
 <p align="center">
-  Engineered with ✦ by IIT Patna <br/>
+  ✦ Engineered by IIT Patna <br/>
 </p>
 
