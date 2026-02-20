@@ -37,41 +37,4 @@ Current environmental monitoring relies on massive, city-wide averages that mask
 3.  **Machine Learning Pipeline:** Data is fed into our predictive engine, processing localized weather lag, traffic density, and historical AQI.
 4.  **Client Application:** React frontend renders the interpolated data over interactive, multi-layered maps.
 
----
 
-## 📸 Dashboard Previews
-
-_(Replace these placeholder links with actual screenshots of your application before submitting!)_
-
-|                                           Live Overview & ML Insights                                           |                                         Spatial AQI Mapping                                         |
-| :-------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------: |
-| <img src="https://via.placeholder.com/600x350/0b1121/00d2ff?text=Overview+Dashboard+Screenshot" alt="Overview"> | <img src="https://via.placeholder.com/600x350/0b1121/00d2ff?text=AQI+Map+Screenshot" alt="AQI Map"> |
-
-|                                         Exposure Avoidance Routing                                         |                                       Urban Thermal Diagnostics                                       |
-| :--------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------: |
-| <img src="https://via.placeholder.com/600x350/0b1121/2ecc71?text=Routing+Engine+Screenshot" alt="Routing"> | <img src="https://via.placeholder.com/600x350/0b1121/ff4757?text=Heat+Map+Screenshot" alt="Heat Map"> |
-
----
-
-## 🚀 Run It Locally
-
-### Prerequisites
-
-- Node.js (v16+)
-- npm or yarn
-
-### Frontend Setup
-
-```bash
-# Clone the repository
-git clone [https://github.com/your-username/pro-atmos-guard.git](https://github.com/your-username/pro-atmos-guard.git)
-
-# Navigate to the frontend directory
-cd pro-atmos-guard
-
-# Install dependencies
-npm install
-
-# Start the React development server
-npm start
-```
