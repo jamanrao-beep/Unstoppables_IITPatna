@@ -10,8 +10,8 @@ const Footer = () => {
                 {/* Top Row: The 3 Centered Links */}
                 <div className="footer-links">
                     <a href="https://github.com/jamanrao-beep/ECO-Hackathon-Technex-26-IITBHU" target="_blank" rel="noopener noreferrer" className="footer-link">GitHub Repository</a>
-                    <a href="https://wokwi.com/projects/456028445065054209" target="_blank" rel="noopener noreferrer" className="footer-link">Architecture Deck</a>
-                    <a href="https://wokwi.com/projects/456028445065054209" target="_blank" rel="noopener noreferrer" className="footer-link">Live Hardware Feed</a>
+                    <a href="https://wokwi.com/projects/456654211910081537" target="_blank" rel="noopener noreferrer" className="footer-link">Architecture Deck</a>
+                    <a href="https://wokwi.com/projects/456654211910081537" target="_blank" rel="noopener noreferrer" className="footer-link">Live Hardware Feed</a>
                 </div>
 
                 {/* Bottom Row: Team Credit */}
