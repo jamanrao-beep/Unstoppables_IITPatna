@@ -14,6 +14,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from scipy.interpolate import griddata
 from datetime import timedelta
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 st.set_page_config(page_title="Pro Atmos AI", layout="wide")
 
@@ -48,6 +50,11 @@ for i in range(SEQ_LEN, len(scaled)):
 
 X, y = np.array(X), np.array(y)
 
+# Add this check before model = Sequential()
+if len(X) == 0:
+    st.error("❌ Not enough data in aqi_data.csv to train the model. Please add at least 25 rows of data.")
+    st.stop()
+    
 # 4. ENSEMBLE MODEL INITIALIZATION
 # Define LSTM
 model = Sequential()
