@@ -46,6 +46,7 @@ A modern, high-performance dashboard featuring:
 1. Navigate to your project root.
 2. Install dependencies: `pip install fastapi uvicorn scikit-learn joblib`
 3. Start the server: `python main.py`
+4. Start ML: Run streamlit run ml_model.py in your terminal.
 
 ### Bridge (Tunnel)
 1. In a new terminal, run: `ssh -R 80:localhost:8000 serveo.net`
