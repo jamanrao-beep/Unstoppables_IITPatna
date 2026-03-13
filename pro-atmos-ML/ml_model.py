@@ -197,6 +197,7 @@ def build_graph(data, num_nodes):
 
 
 # Build graph
+num_nodes = min(len(data), 50)
 node_features, edge_index, target = build_graph(data, num_nodes)
 
 data_graph = Data(
@@ -292,7 +293,7 @@ for i in range(24):
     )
 
     rf_pred = rf_model.predict(
-        current_seq.reshape(1,-1)
+    current_seq[-1].reshape(1, -1)
     )
 
     combined = (lstm_pred[0] + rf_pred[0]) / 2
