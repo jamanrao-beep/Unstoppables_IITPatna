@@ -1,7 +1,7 @@
-# ==========================================
-# SMART AI AIR QUALITY MONITORING SYSTEM
+
+#SMART AI AIR QUALITY MONITORING SYSTEM
 # GNN + LSTM-TRANSFORMER + RANDOM FOREST
-# ==========================================
+
 
 import os
 import numpy as np
@@ -30,17 +30,16 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 st.set_page_config(page_title="Pro Atmos AI", layout="wide")
 
-# ==========================================
 # FILE CHECK
-# ==========================================
+
 
 if not os.path.exists("aqi_data.csv"):
     st.error("aqi_data.csv not found. Please place dataset in project folder.")
     st.stop()
 
-# ==========================================
+
 # LOAD DATA
-# ==========================================
+
 
 @st.cache_data
 def load_data():
