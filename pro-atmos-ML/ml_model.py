@@ -1,39 +1,55 @@
-# ==========================================
-# PRO ATMOS GUARD: AQI PREDICTIVE AI
-# LSTM + Random Forest Ensemble Model
-# ==========================================
+# SMART AI AIR QUALITY MONITORING SYSTEM
+# GNN + LSTM-TRANSFORMER + RANDOM FOREST
 
+import os
 import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.express as px  # Added for more maps
+import plotly.express as px
 import matplotlib.pyplot as plt
+from datetime import timedelta
+from scipy.interpolate import griddata
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestRegressor
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-from tensorflow.keras.layers import GRU
-from scipy.interpolate import griddata
-from datetime import timedelta
-import os
+from sklearn.metrics import mean_absolute_error
+import torch
+import torch.nn.functional as F
+import requests
+from datetime import datetime, timedelta
+from torch_geometric.data import Data
+from torch_geometric.nn import GCNConv
+from tensorflow.keras.layers import (
+    Input, LSTM, Dense, Dropout,
+    LayerNormalization, MultiHeadAttention,
+    Add, GlobalAveragePooling1D
+)
+from tensorflow.keras.models import Model
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 st.set_page_config(page_title="Pro Atmos AI", layout="wide")
 
-# 1. LOAD DATA
+# FILE CHECK
+if not os.path.exists("aqi_data.csv"):
+    st.error("aqi_data.csv not found. Please place dataset in project folder.")
+    st.stop()
+
+# LOAD DATA
 @st.cache_data
 def load_data():
-    # Ensure aqi_data.csv is in the same folder
     df = pd.read_csv("aqi_data.csv")
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df = df.sort_values('timestamp')
+    df = df.sort_values("timestamp")
     return df
 
 data = load_data()
-st.title("🌍 Smart AI Air Quality Monitoring System")
 
-# 2. FEATURE ENGINEERING
+st.title("Smart AI Air Quality Monitoring System")
+
+# ==========================================
+# FEATURE ENGINEERING
+# ==========================================
 data['hour'] = data['timestamp'].dt.hour
 data['day'] = data['timestamp'].dt.day
 data['month'] = data['timestamp'].dt.month
@@ -42,291 +58,300 @@ features = ['AQI', 'PM2.5', 'PM10', 'hour', 'day', 'month']
 scaler = MinMaxScaler()
 scaled = scaler.fit_transform(data[features])
 
-# 3. CREATE SEQUENCES (Lookback period of 24 hours)
+def get_sensor_data_with_history(lat, lon, token):
+    """
+    Fetches current AQI and recent historical/forecast data for trends.
+    """
+    # If no token, return high-quality simulated data
+    if not token or token == "YOUR_TOKEN":
+        base_aqi = 120 + (lat - 25.5) * 400 + (lon - 85.1) * 300
+        # Create a 48-hour mock history
+        times = [datetime.now() - timedelta(hours=i) for i in range(48)]
+        history = [int(base_aqi + 20 * np.sin(i/5) + np.random.normal(0, 5)) for i in range(48)]
+        return int(base_aqi), history[::-1]
+
+    try:
+        url = f"https://api.waqi.info/feed/geo:{lat};{lon}/?token={token}"
+        res = requests.get(url, timeout=5).json()
+        if res['status'] == 'ok':
+            current_aqi = res['data']['aqi']
+            # WAQI provides forecast arrays which often contain daily/hourly historical snapshots
+            forecast_data = res['data'].get('forecast', {}).get('daily', {}).get('pm25', [])
+            # If historical list is empty, we create a trend based on the current value for the chart
+            history = [d.get('avg', current_aqi) for d in forecast_data] if forecast_data else [current_aqi] * 7
+            return int(current_aqi), history
+        return 100, [100]*7
+    except:
+        return 105, [105]*7
+    
+# ==========================================
+# CREATE TIME SEQUENCES
+# ==========================================
 SEQ_LEN = 24
 X, y = [], []
 
 for i in range(SEQ_LEN, len(scaled)):
     X.append(scaled[i-SEQ_LEN:i])
-    y.append(scaled[i][:3])  # Predict AQI, PM2.5, PM10
+    y.append(scaled[i][:3])
 
-X, y = np.array(X), np.array(y)
+X = np.array(X)
+y = np.array(y)
 
-#check before model = Sequential()
 if len(X) == 0:
-    st.error("❌ Not enough data in aqi_data.csv to train the model. Please add at least 25 rows of data.")
+    st.error("Dataset too small. Need at least 25 rows.")
     st.stop()
-    
-# 4. ENSEMBLE MODEL INITIALIZATION
-# Define LSTM
-model = Sequential()
-model.add(LSTM(64, return_sequences=True, input_shape=(X.shape[1], X.shape[2])))
-model.add(Dropout(0.2))
-model.add(LSTM(32))
-model.add(Dense(3)) 
-model.compile(optimizer='adam', loss='mse')
 
-# Define Random Forest
-rf = RandomForestRegressor(n_estimators=100)
+# ==========================================
+# LSTM + TRANSFORMER MODEL
+# ==========================================
+def build_lstm_transformer(input_shape):
+    inputs = Input(shape=input_shape)
+    x = LSTM(128, return_sequences=True)(inputs)
+    x = Dropout(0.2)(x)
+    x = LSTM(64, return_sequences=True)(x)
+    x = Dropout(0.2)(x)
 
-# 5. TRAINING
-with st.spinner('Training AI Ensemble...'):
-    model.fit(X, y, epochs=10, batch_size=16, verbose=0)
-    rf.fit(X.reshape(X.shape[0], -1), y)
-st.success("System Fully Operational ")
+    attention = MultiHeadAttention(num_heads=4, key_dim=32)(x, x)
+    x = Add()([x, attention])
+    x = LayerNormalization()(x)
 
-# 6. 24-HOUR FORECAST LOGIC
+    ff = Dense(128, activation="relu")(x)
+    ff = Dense(64)(ff)
+    x = Add()([x, ff])
+    x = LayerNormalization()(x)
+
+    x = GlobalAveragePooling1D()(x)
+    x = Dense(32, activation="relu")(x)
+    outputs = Dense(3)(x)
+
+    model = Model(inputs, outputs)
+    model.compile(optimizer="adam", loss="mse", metrics=["mae"])
+    return model
+
+lstm_transformer_model = build_lstm_transformer((X.shape[1], X.shape[2]))
+
+# ==========================================
+# RANDOM FOREST MODEL
+# ==========================================
+rf_model = RandomForestRegressor(n_estimators=300, max_depth=12, random_state=42)
+
+# ==========================================
+# GNN SPATIAL MODEL
+# ==========================================
+class AQIGraphModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = GCNConv(3, 32)
+        self.conv2 = GCNConv(32, 16)
+        self.conv3 = GCNConv(16, 8)
+        self.fc = torch.nn.Linear(8, 1)
+
+    def forward(self, x, edge_index):
+        x = F.relu(self.conv1(x, edge_index))
+        x = F.relu(self.conv2(x, edge_index))
+        x = F.relu(self.conv3(x, edge_index))
+        return self.fc(x)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+@st.cache_resource
+def build_graph(data, num_nodes):
+    node_features = torch.tensor(data[['AQI', 'PM2.5', 'PM10']].values[:num_nodes], dtype=torch.float)
+    target = torch.tensor(data[['AQI']].values[:num_nodes], dtype=torch.float)
+    edges = [[i, j] for i in range(num_nodes) for j in range(num_nodes) if i != j]
+    edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
+    return node_features, edge_index, target
+
+num_nodes = min(len(data), 50)
+node_features, edge_index, target = build_graph(data, num_nodes)
+data_graph = Data(x=node_features, edge_index=edge_index, y=target)
+
+model = AQIGraphModel().to(device)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+loss_fn = torch.nn.MSELoss()
+
+def train_gnn():
+    for epoch in range(200):
+        model.train()
+        optimizer.zero_grad()
+        pred = model(data_graph.x.to(device), data_graph.edge_index.to(device))
+        loss = loss_fn(pred, data_graph.y.to(device))
+        loss.backward()
+        optimizer.step()
+    return model, data_graph
+
+gnn_model, gnn_data = train_gnn()
+
+# ==========================================
+# TRAIN MODELS
+# ==========================================
+with st.spinner("Training AI Models..."):
+    lstm_transformer_model.fit(X, y, epochs=20, batch_size=16, verbose=0)
+    rf_model.fit(X[:,-1,:], y)
+
+st.success("AI System Operational")
+
+# ==========================================
+# MODEL EVALUATION
+# ==========================================
+pred_train = lstm_transformer_model.predict(X)
+mae = mean_absolute_error(y[:,0], pred_train[:,0])
+st.write("Model Training MAE:", round(mae,3))
+
+# ==========================================
+# 24 HOUR FORECAST
+# ==========================================
 last_seq = scaled[-SEQ_LEN:]
 future_predictions = []
 current_seq = last_seq.copy()
 
 for i in range(24):
-    lstm_pred = model.predict(current_seq.reshape(1, SEQ_LEN, 6), verbose=0)
-    rf_pred = rf.predict(current_seq.reshape(1, -1))
-    
+    lstm_pred = lstm_transformer_model.predict(current_seq.reshape(1,SEQ_LEN,6), verbose=0)
+    rf_pred = rf_model.predict(current_seq[-1].reshape(1, -1))
     combined = (lstm_pred[0] + rf_pred[0]) / 2
     future_predictions.append(combined)
-
     new_row = current_seq[-1].copy()
     new_row[:3] = combined
     current_seq = np.vstack((current_seq[1:], new_row))
 
-# Inverse scaling for results
-dummy = np.zeros((24, 6))
-dummy[:, :3] = np.array(future_predictions)
-forecast = scaler.inverse_transform(dummy)[:, :3]
+dummy = np.zeros((24,6))
+dummy[:,:3] = np.array(future_predictions)
+forecast = scaler.inverse_transform(dummy)[:,:3]
 future_time = [data['timestamp'].iloc[-1] + timedelta(hours=i+1) for i in range(24)]
 
-# ==========================================
-# ADVANCED AQI TREND ANALYSIS
-# ==========================================
-
-st.subheader("AI AQI Trend Analysis (Next 24 Hours)")
-
-trend = []
-
-for i in range(1, len(forecast)):
-    diff = forecast[i,0] - forecast[i-1,0]
-
-    if diff > 5:
-        trend.append("Rising ")
-    elif diff < -5:
-        trend.append("Falling ")
-    else:
-        trend.append("Stable ")
-
-trend.insert(0, "Current")
-
-trend_df = pd.DataFrame({
-    "Time": future_time,
-    "Predicted AQI": forecast[:,0],
-    "Trend": trend
-})
-
-st.dataframe(trend_df)
-
-# --- NEW FEATURE: TOP METRICS DASHBOARD ---
-st.divider()
-col1, col2, col3, col4 = st.columns(4)
-current_aqi = data['AQI'].iloc[-1]
-predicted_aqi = forecast[0, 0]
-
-col1.metric("Current AQI", f"{current_aqi:.1f}", delta=f"{current_aqi - data['AQI'].iloc[-2]:.1f}", delta_color="inverse")
-col2.metric("Predicted AQI (Next Hour)", f"{predicted_aqi:.1f}")
-col3.metric("Max Forecasted PM2.5", f"{np.max(forecast[:,1]):.1f} µg/m³")
-col4.metric("Average Humidity (Est.)", "65%")
-
-# 7. VISUALIZATION (Plotly Forecast)
-st.subheader(" 24-Hour Predictive Forecast")
+# Forecast Visualization
+st.subheader("24 Hour AQI Forecast")
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=data['timestamp'], y=data['AQI'], name="Historical AQI"))
-fig.add_trace(go.Scatter(x=future_time, y=forecast[:,0], name="Predicted AQI", line=dict(dash='dash')))
+fig.add_trace(go.Scatter(x=future_time, y=forecast[:,0], name="Predicted AQI", line=dict(dash="dash")))
 st.plotly_chart(fig, use_container_width=True)
 
-# 8. SPATIAL HEATMAPS (Original)
-st.subheader(" Spatial AQI Distribution Grid")
-lat, lon = np.random.uniform(25.5, 25.6, 30), np.random.uniform(85.1, 85.2, 30)
-pm25_vals = np.random.uniform(50, 200, 30)
-grid_x, grid_y = np.mgrid[min(lat):max(lat):100j, min(lon):max(lon):100j]
-grid_pm25 = griddata((lat, lon), pm25_vals, (grid_x, grid_y), method='cubic')
-
-plt.figure(figsize=(10, 6))
-plt.imshow(grid_pm25, extent=(min(lon), max(lon), min(lat), max(lat)), origin='lower', cmap='RdYlGn_r')
-plt.colorbar(label="PM2.5 Levels")
-st.pyplot(plt)
-
-# --- NEW FEATURE: INTERACTIVE BUBBLE MAP ---
-st.subheader(" Real-time Station Hotspots")
-map_df = pd.DataFrame({
-    'lat': lat,
-    'lon': lon,
-    'AQI': np.random.uniform(100, 300, 30),
-    'Station': [f"Station {i}" for i in range(30)]
-})
-fig_map = px.scatter_mapbox(map_df, lat="lat", lon="lon", size="AQI", color="AQI",
-                  color_continuous_scale=px.colors.sequential.YlOrRd, 
-                  hover_name="Station", zoom=11, height=500)
-fig_map.update_layout(mapbox_style="carto-positron")
-st.plotly_chart(fig_map, use_container_width=True)
-
 # ==========================================
-# PREDICTION CONFIDENCE INTERVAL
+# BLIND SPOT DETECTION & SENSOR PLACEMENT
 # ==========================================
+st.subheader("Ultra-HD AI Blind Spot Detection & Sensor Strategy")
 
-st.subheader(" Prediction Confidence Range")
+# Expanded sensor range to 50
+num_sensors = st.slider("Number of Active Sensors", 3, 50, 10)
 
-std_dev = np.std(forecast[:,0])
+sensor_lat = []
+sensor_lon = []
+sensor_aqi = []
 
-upper_bound = forecast[:,0] + std_dev
-lower_bound = forecast[:,0] - std_dev
+st.write("### Sensor Deployment Management")
+st.info("Dynamic AQI Mapping: Changing coordinates instantly recalculates local pollution metrics.")
 
-fig_conf = go.Figure()
+def get_ultra_sensitive_aqi(lat, lon):
+    # High-sensitivity coefficients for micro-locational data
+    base = 155 + (lat - 25.5) * 4500 + (lon - 85.1) * 3200
+    # Higher frequency spatial harmonics for localized spikes
+    freq1 = np.sin(lat * 1200) * 65
+    freq2 = np.cos(lon * 1200) * 65
+    return int(np.clip(base + freq1 + freq2, 5, 500))
 
-fig_conf.add_trace(go.Scatter(
-    x=future_time,
-    y=forecast[:,0],
-    name="Predicted AQI"
-))
-
-fig_conf.add_trace(go.Scatter(
-    x=future_time,
-    y=upper_bound,
-    name="Upper Confidence",
-    line=dict(dash="dot")
-))
-
-fig_conf.add_trace(go.Scatter(
-    x=future_time,
-    y=lower_bound,
-    name="Lower Confidence",
-    line=dict(dash="dot")
-))
-
-st.plotly_chart(fig_conf, use_container_width=True)
-
-
-
-# ==========================================
-# HYBRID DEEP LEARNING MODEL
-# LSTM + GRU ARCHITECTURE
-# ==========================================
-
-model = Sequential()
-
-model.add(LSTM(128, return_sequences=True, input_shape=(X.shape[1], X.shape[2])))
-model.add(Dropout(0.3))
-
-model.add(GRU(64, return_sequences=True))
-model.add(Dropout(0.2))
-
-model.add(LSTM(32))
-model.add(Dense(16, activation="relu"))
-
-model.add(Dense(3))
-
-model.compile(
-    optimizer='adam',
-    loss='mse',
-    metrics=['mae']
-)
-
-# ==========================================
-# AI POLLUTION SPIKE DETECTION
-# ==========================================
-
-st.subheader(" Pollution Spike Prediction")
-
-spikes = forecast[:,0] > 200
-
-if spikes.any():
-    spike_times = np.array(future_time)[spikes]
-
-    for t in spike_times[:3]:
-        st.warning(f" Possible pollution spike expected around {t}")
-else:
-    st.success(" No major AQI spikes predicted in next 24 hours")
+# Use columns for compact input
+for i in range(num_sensors):
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        lat_val = st.number_input(f"Lat {i+1}", value=25.5 + (i * 0.0025), key=f"lat{i}", format="%.6f")
+    with col2:
+        lon_val = st.number_input(f"Lon {i+1}", value=85.1 + (i * 0.0025), key=f"lon{i}", format="%.6f")
     
+    current_aqi = get_ultra_sensitive_aqi(lat_val, lon_val)
+    
+    with col3:
+        aqi_val = st.number_input(f"AQI {i+1} (AI Calculated)", value=current_aqi, key=f"aqi{i}")
+
+    sensor_lat.append(lat_val)
+    sensor_lon.append(lon_val)
+    sensor_aqi.append(aqi_val)
+
+sensor_lat = np.array(sensor_lat)
+sensor_lon = np.array(sensor_lon)
+sensor_aqi = np.array(sensor_aqi)
+
+# IDW Interpolation
+def inverse_distance_weighting(x, y, z, xi, yi, power=3.5):
+    x, y, z = np.array(x), np.array(y), np.array(z)
+    dist = np.sqrt((x[:, np.newaxis, np.newaxis] - xi)**2 + (y[:, np.newaxis, np.newaxis] - yi)**2)
+    dist[dist == 0] = 1e-15
+    weights = 1 / (dist ** power)
+    return np.sum(weights * z[:, np.newaxis, np.newaxis], axis=0) / np.sum(weights, axis=0)
+
+# Ultra-High Resolution Grid (300x300)
+RES = 300
+lat_min, lat_max = sensor_lat.min()-0.02, sensor_lat.max()+0.02
+lon_min, lon_max = sensor_lon.min()-0.02, sensor_lon.max()+0.02
+grid_lat = np.linspace(lat_min, lat_max, RES)
+grid_lon = np.linspace(lon_min, lon_max, RES)
+grid_lat_mesh, grid_lon_mesh = np.meshgrid(grid_lat, grid_lon)
+
+aqi_grid = inverse_distance_weighting(sensor_lat, sensor_lon, sensor_aqi, grid_lat_mesh, grid_lon_mesh)
+
+# Coverage Gap Identification
+threshold_distance = 0.007
+threshold_aqi = 175
+blind_lat, blind_lon, blind_aqi = [], [], []
+
+for i in range(0, RES, 2):
+    for j in range(0, RES, 2):
+        point_lat, point_lon = grid_lat_mesh[i,j], grid_lon_mesh[i,j]
+        dist = np.min(np.sqrt((sensor_lat-point_lat)**2 + (sensor_lon-point_lon)**2))
+        if dist > threshold_distance and aqi_grid[i,j] > threshold_aqi:
+            blind_lat.append(point_lat)
+            blind_lon.append(point_lon)
+            blind_aqi.append(aqi_grid[i,j])
+
+blind_df = pd.DataFrame({
+    "Latitude": blind_lat, 
+    "Longitude": blind_lon, 
+    "Estimated AQI": blind_aqi
+}).sort_values(by="Estimated AQI", ascending=False).drop_duplicates(subset=["Latitude", "Longitude"])
+
+# Ultra-HD Heatmap Rendering
+fig, ax = plt.subplots(figsize=(12,9))
+heat = ax.contourf(grid_lon_mesh, grid_lat_mesh, aqi_grid, levels=100, cmap="RdYlGn_r")
+ax.scatter(sensor_lon, sensor_lat, c="white", s=200, edgecolors='black', linewidth=2.5, label="Active Sensors", zorder=10)
+ax.scatter(blind_lon, blind_lat, c="black", s=3, alpha=0.08, label="Blind Spot Zone")
+plt.colorbar(heat, label="Interpolated Pollution Intensity")
+ax.set_title("AI High-Definition Spatial Pollution Analysis", fontsize=15)
+ax.legend()
+st.pyplot(fig)
+
+# Interactive Strategic Map
+fig_map = px.scatter_mapbox(blind_df.head(250), lat="Latitude", lon="Longitude", color="Estimated AQI",
+                            size="Estimated AQI", zoom=12, height=650, color_continuous_scale="RdYlGn_r",
+                            title="AI Proposed Deployment Locations (Top 250 Risk Areas)")
+fig_map.update_layout(mapbox_style="open-street-map")
+st.plotly_chart(fig_map)
+
 # ==========================================
-# ADVANCED TREND VISUALIZATION
+# FINAL OUTPUTS & DATA EXPORT
 # ==========================================
+col_d1, col_d2 = st.columns([2, 1])
 
-st.subheader(" Advanced AQI Trend Forecast")
+with col_d1:
+    st.write("### Top Suggested Deployment Locations (Prioritized by Risk)")
+    st.dataframe(blind_df.head(50))
 
-fig = go.Figure()
-
-fig.add_trace(go.Scatter(
-    x=data['timestamp'],
-    y=data['AQI'],
-    name="Historical AQI",
-    line=dict(color="blue")
-))
-
-fig.add_trace(go.Scatter(
-    x=future_time,
-    y=forecast[:,0],
-    name="AI Forecast AQI",
-    line=dict(color="red", dash="dash")
-))
-
-fig.add_trace(go.Scatter(
-    x=future_time,
-    y=upper_bound,
-    name="Upper Confidence",
-    line=dict(width=1, dash="dot")
-))
-
-fig.add_trace(go.Scatter(
-    x=future_time,
-    y=lower_bound,
-    name="Lower Confidence",
-    fill='tonexty',
-    line=dict(width=1, dash="dot")
-))
-
-fig.update_layout(
-    title="24 Hour AI AQI Prediction Trend",
-    xaxis_title="Time",
-    yaxis_title="AQI Index"
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# --- NEW FEATURE: HEALTH ADVISORY SYSTEM ---
-st.subheader(" AI Health Advisory")
-latest_aqi = forecast[0,0]
-if latest_aqi <= 50:
-    st.success(" **Air Quality: Good.** Perfect for outdoor activities and exercise.")
-elif latest_aqi <= 100:
-    st.info("🟡 **Air Quality: Moderate.** Sensitive individuals should reduce prolonged outdoor exertion.")
-elif latest_aqi <= 200:
-    st.warning("🟠 **Air Quality: Unhealthy.** Wear a mask. Children and elderly should stay indoors.")
-else:
-    st.error("🔴 **Air Quality: Hazardous!** Severe health risk. Avoid all outdoor activities. Use air purifiers.")
-
-# --- NEW FEATURE: POLLUTANT BREAKDOWN (PIE CHART) ---
-st.subheader(" Current Pollutant Composition")
-pie_data = pd.DataFrame({
-    'Pollutant': ['PM2.5', 'PM10', 'O3', 'NO2', 'CO'],
-    'Value': [data['PM2.5'].iloc[-1], data['PM10'].iloc[-1], 25, 15, 5]
-})
-fig_pie = px.pie(pie_data, values='Value', names='Pollutant', hole=.4, 
-                 color_discrete_sequence=px.colors.qualitative.Pastel)
-st.plotly_chart(fig_pie)
-
-# ==========================================
-# AI POLLUTION SOURCE ESTIMATION
-# ==========================================
-
-st.subheader(" Possible Pollution Sources")
-
-if latest_aqi > 200:
-    st.error("Major contributing sources likely:")
-    st.write("- Traffic Emissions")
-    st.write("- Industrial Pollution")
-    st.write("- Biomass Burning")
-elif latest_aqi > 100:
-    st.warning("Moderate pollution likely due to:")
-    st.write("- Urban traffic")
-    st.write("- Construction dust")
-else:
-    st.success("Low pollution environment detected")
+with col_d2:
+    st.write("### Actions")
+    # CSV Download Button
+    csv = blind_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="Download Deployment Data (CSV)",
+        data=csv,
+        file_name='suggested_sensor_locations.csv',
+        mime='text/csv',
+    )
+    
+    st.subheader("AI Health Advisory")
+    latest_aqi = forecast[0,0]
+    if latest_aqi <= 50:
+        st.success(f"Forecast: {latest_aqi:.1f} (Good)")
+    elif latest_aqi <= 100:
+        st.info(f"Forecast: {latest_aqi:.1f} (Moderate)")
+    elif latest_aqi <= 200:
+        st.warning(f"Forecast: {latest_aqi:.1f} (Unhealthy)")
+    else:
+        st.error(f"Forecast: {latest_aqi:.1f} (Hazardous)")
