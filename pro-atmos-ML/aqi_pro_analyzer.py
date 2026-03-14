@@ -13,10 +13,10 @@ st.markdown("---")
 
 # --- SIDEBAR SETTINGS ---
 with st.sidebar:
-    st.header("🌐 Network Configuration")
+    st.header("Network Configuration")
     num_stations = st.number_input("Total Active Stations", min_value=1, max_value=50, value=3)
     
-    st.header("⚙️ Algorithm Tuning")
+    st.header("Algorithm Tuning")
     idw_p = st.slider("IDW Power (Spatial Decay)", 1.0, 5.0, 3.5)
     max_radius = st.slider("Max Coverage (Degrees)", 0.1, 2.0, 0.5)
 
@@ -49,7 +49,7 @@ for i in range(int(num_stations)):
         
         # Calculate derived AQI for reference
         derived_aqi = calculate_aqi_from_pm25(pm25)
-        st.caption(f"💡 EPA Calculated AQI from PM2.5: **{derived_aqi:.1f}**")
+        st.caption(f"EPA Calculated AQI from PM2.5: **{derived_aqi:.1f}**")
         
         station_data.append({"Station": f"ST-{i+1}", "Lat": lat, "Lon": lon, "AQI": aqi, "PM2.5": pm25})
 
@@ -139,7 +139,7 @@ if qc3.button("Generate Risk Assessment", use_container_width=True):
 # ==========================================
 # 4. ZONE CLASSIFICATION (Summary)
 # ==========================================
-with st.expander("📊 View Network Summary Stats"):
+with st.expander("View Network Summary Stats"):
     st.write(df.describe())
     # Chart now shows both AQI and PM2.5 for comparison
     st.bar_chart(df.set_index("Station")[["AQI", "PM2.5"]])
