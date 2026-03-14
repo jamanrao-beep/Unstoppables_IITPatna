@@ -47,9 +47,6 @@ data = load_data()
 
 st.title("Smart AI Air Quality Monitoring System")
 
-# ==========================================
-# FEATURE ENGINEERING
-# ==========================================
 data['hour'] = data['timestamp'].dt.hour
 data['day'] = data['timestamp'].dt.day
 data['month'] = data['timestamp'].dt.month
@@ -84,9 +81,7 @@ def get_sensor_data_with_history(lat, lon, token):
     except:
         return 105, [105]*7
     
-# ==========================================
-# CREATE TIME SEQUENCES
-# ==========================================
+
 SEQ_LEN = 24
 X, y = [], []
 
@@ -101,9 +96,7 @@ if len(X) == 0:
     st.error("Dataset too small. Need at least 25 rows.")
     st.stop()
 
-# ==========================================
-# LSTM + TRANSFORMER MODEL
-# ==========================================
+
 def build_lstm_transformer(input_shape):
     inputs = Input(shape=input_shape)
     x = LSTM(128, return_sequences=True)(inputs)
@@ -130,14 +123,12 @@ def build_lstm_transformer(input_shape):
 
 lstm_transformer_model = build_lstm_transformer((X.shape[1], X.shape[2]))
 
-# ==========================================
-# RANDOM FOREST MODEL
-# ==========================================
+
 rf_model = RandomForestRegressor(n_estimators=300, max_depth=12, random_state=42)
 
-# ==========================================
+
 # GNN SPATIAL MODEL
-# ==========================================
+
 class AQIGraphModel(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -182,25 +173,25 @@ def train_gnn():
 
 gnn_model, gnn_data = train_gnn()
 
-# ==========================================
+
 # TRAIN MODELS
-# ==========================================
+
 with st.spinner("Training AI Models..."):
     lstm_transformer_model.fit(X, y, epochs=20, batch_size=16, verbose=0)
     rf_model.fit(X[:,-1,:], y)
 
 st.success("AI System Operational")
 
-# ==========================================
+
 # MODEL EVALUATION
-# ==========================================
+
 pred_train = lstm_transformer_model.predict(X)
 mae = mean_absolute_error(y[:,0], pred_train[:,0])
 st.write("Model Training MAE:", round(mae,3))
 
-# ==========================================
+
 # 24 HOUR FORECAST
-# ==========================================
+
 last_seq = scaled[-SEQ_LEN:]
 future_predictions = []
 current_seq = last_seq.copy()
